@@ -86,7 +86,7 @@ void print_row(Row *row)
 void serialize_row(Row *source, void *destination)
 {
   memcpy(destination + ID_OFFSET, &(source->id), ID_SIZE);
-  memcpy(destination + USERNAME_OFFSET, &(source->username), USERNAME_OFFSET);
+  memcpy(destination + USERNAME_OFFSET, &(source->username), USERNAME_SIZE);
   memcpy(destination + EMAIL_OFFSET, &(source->email), EMAIL_SIZE);
 }
 
@@ -107,8 +107,6 @@ void *row_slot(Table *table, uint32_t row_num)
   }
   uint32_t row_offset = row_num % ROWS_PER_PAGE;
   uint32_t byte_offset = row_offset * ROW_SIZE;
-  printf("what this?\n%d\n", *(int *)page);
-  printf("byte_offset\n%d\n", byte_offset);
   return page + byte_offset;
 }
 
@@ -164,7 +162,10 @@ PrepareResult prepare_statement(InputBuffer *input_buffer, Statement *statement)
   if (strncmp(input_buffer->buffer, "insert", 6) == 0)
   {
     statement->type = STATEMENT_INSERT;
-    int args_assigned = sscanf(input_buffer->buffer, "insert %d %s %s", &(statement->row_to_insert.id), statement->row_to_insert.username, statement->row_to_insert.email);
+    int args_assigned = sscanf(
+        input_buffer->buffer, "insert %d %s %s", &(statement->row_to_insert.id),
+        statement->row_to_insert.username, statement->row_to_insert.email);
+
     if (args_assigned < 3)
     {
       return PREPARE_SYNTAX_ERROR;
@@ -286,7 +287,7 @@ int main(int argc, char *argv[])
     switch (execute_statement(&statement, table))
     {
     case (EXECUTE_SUCCESS):
-      printf("Executed. \n");
+      printf("Executed.\n");
       break;
     case (EXECUTE_TABLE_FULL):
       printf("Error: Table full.\n");

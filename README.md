@@ -39,10 +39,9 @@ prepare_statement でクエリ文をバイトコードにコンパイルする�
 # 4. 構造体でテーブルを表現する
 
 - page? page size?
-  paging というメモリ管理の方法がある。
-
-http://www.cs.gunma-u.ac.jp/~nakano/OS16/vm.html
-https://www.computerhope.com/jargon/p/paging.htm
+  <br>paging というメモリ管理の方法がある。
+  <br>http://www.cs.gunma-u.ac.jp/~nakano/OS16/vm.html
+  <br>https://www.computerhope.com/jargon/p/paging.htm
 
 - void\*について
   　<br> 単にアドレスを格納する型。どんな型の変数のアドレスでも格納できる。汎用ポインタと呼ばれる。
@@ -54,7 +53,7 @@ https://www.computerhope.com/jargon/p/paging.htm
 
   - ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE = 4096 / 291 = 14.07
 
-    <br>1 つの page に 14 個 row を格納できる事になる。page は 100 個用意してあるため、合計 140 個のデータをメモリ上に保存できる。コード上では、構造体 Table の pages に row を追加していく。
+    <br>1 つの page に 14 個 row を格納できる事になる。page は 100 個用意してあるため、合計 1400 個のデータをメモリ上に保存できる。コード上では、構造体 Table の pages に row を追加していく。
 
   - row_slot()
     <br> row_num / POWS_PER_PAGE で row を格納する pages 配列の番号を割り出す。row がすでに 14 個格納されていれば、pages 配列の 0 番目の page は埋まっていることになる。埋まっていたら新しく PAGE_SIZE 分だけメモリを確保し、あららしく確保した領域の先頭のアドレスを pages のそれぞれの page に割り当てている。
