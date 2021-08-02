@@ -97,3 +97,30 @@ prepare_statement でクエリ文をバイトコードにコンパイルする�
   <br> row_slot の page_num は引数で渡された row_num 番目の row が何ページ目に存在するかを示している。insert の場合、一番最後の row が何ページ目に存在するか示すことになる。
   <br> num_pages は単純にファイルに保存されているページ数を示す。num_pages より page_num が小さいか同じだった場合、pages の page_num 番目にそのページの row だけファイルから読み込む。
   <br> row をメモリに持ってきたら、新しく追加する row のオフセット(ページ番号とページ内のどこから row を追加するのか)や select する row のオフセットを計算している。
+
+# B-tree, B+ tree??????????????????
+
+- B-tree は、バイナリーツリーの上位互換。B-tree の B は bynary ではなくて balanced の B。挿入や削除などで木のバランスが崩れない、これによって O(log(n))を発揮する。リーフ同士の関係もあるため、範囲取得も得意
+
+- B+tree はテーブルを保存するために B-tree を改良したもの。
+  <br> &nbsp; => b-tree はノードにインデック（単一の数値）だけしか格納していない。b+ tree はノードに値の塊（テーブル）を格納できる。その工夫のために、ノードが何種類もあり少しややこしい。
+
+  - Internal Node: 子をもつノード。
+    <br> key と子ノードへのポインタをもつ。value は持たない。key はルーティングのために使う。
+
+  - Leaf Node: 末端のノード。
+    <br> key と value をもつ。key は value とペアになる。key + value のセットは key によりソートされている。
+
+  - Internarl Node の key の両サイドにポインタがあるため、検索する値と key を比較し、大きければ右のポインタに行き、小さければ左のポインタに行く。Leaf Node までたどり着いたら key により value が見つかる。
+
+  - order
+    <br> 内部ノードが持てる子（子へのポインタ）の数。
+    <br> order が m の木の場合、その木の内部ノードは最大 m-1 個の key を持てる。また、m 個の子へのポインタを持てる(m == 子の数 == 子へのポインタの数)。
+
+  - Leaf Node は収まるだけ key+value のセットを持てる。今回の場合、1 ページ分のデータ量を Leaf Node は保持できる(っていうことだと思う)。
+
+  - 6 章まで書いてきたコードとの対応関係
+    <br> 1 つの Node: 1 つの page
+    <br> &nbsp; => order: 1page の大きさ？
+    <br> root node: 0 page 目
+    <br> Internal Node の子へのポインター: page 番号
