@@ -127,9 +127,12 @@ const uint32_t LEAF_NODE_CELL_SIZE = LEAF_NODE_KEY_SIZE + LEAF_NODE_VALUE_SIZE;
 const uint32_t LEAF_NODE_SPACE_FOR_CELLS = PAGE_SIZE - LEAF_NODE_HEADER_SIZE;
 const uint32_t LEAF_NODE_MAX_CELLS = LEAF_NODE_SPACE_FOR_CELLS / LEAF_NODE_CELL_SIZE;
 
-/* どっからセルのデータがあるか */
+/* ノードにあるセルの数 */
 uint32_t *leaf_node_num_cells(void *node)
 {
+  /* printf("LEAF_NODE_NUM_CELLS_OFFSET: %d\n", LEAF_NODE_NUM_CELLS_OFFSET); */
+  /* printf("node %d\n", *(uint32_t *)node); */
+  printf("what this: %d\n", *(uint32_t *)(node + LEAF_NODE_NUM_CELLS_OFFSET));
   return node + LEAF_NODE_NUM_CELLS_OFFSET;
 }
 
@@ -204,14 +207,17 @@ void *get_page(Pager *pager, uint32_t page_num)
   if (pager->pages[page_num] == NULL)
   {
     void *page = malloc(PAGE_SIZE);
+    /*  ファイルに保存されているページ数 */
     uint32_t num_pages = pager->file_length / PAGE_SIZE;
 
-    /* this is be 0 when file_length == PAGE_SIZE */
+    /* file_lengthがPAGE_SIZEの倍数になる時０になる */
     if (pager->file_length % PAGE_SIZE)
     {
       num_pages += 1;
     }
 
+    /* page_num番のページにファイルに保存したあったデータを注入する */
+    /* 一つ前のifにより、新しいページが作られてた場合はスキップ */
     if (page_num <= num_pages)
     {
       lseek(pager->file_desciptor, page_num * PAGE_SIZE, SEEK_SET);
@@ -332,6 +338,7 @@ Table *db_open(const char *filename)
   table->pager = pager;
   table->root_page_num = 0;
 
+  /* データが保存されてない時 */
   if (pager->num_pages == 0)
   {
     void *root_node = get_page(pager, 0);
@@ -449,7 +456,6 @@ void leaf_node_insert(Cursor *cursor, uint32_t key, Row *value)
     exit(EXIT_FAILURE);
   }
 
-  /* カーソルで指しているセルの最大数より */
   if (cursor->cell_num < num_cells)
   {
     for (uint32_t i = num_cells; i > cursor->cell_num; i--)
