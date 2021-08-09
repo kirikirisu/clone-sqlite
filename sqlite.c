@@ -456,6 +456,7 @@ void leaf_node_insert(Cursor *cursor, uint32_t key, Row *value)
     exit(EXIT_FAILURE);
   }
 
+  /* 新しいセルを入れるスペースを作る。全てのセルを１セル分右に寄せる */
   if (cursor->cell_num < num_cells)
   {
     for (uint32_t i = num_cells; i > cursor->cell_num; i--)
@@ -465,6 +466,7 @@ void leaf_node_insert(Cursor *cursor, uint32_t key, Row *value)
   }
 
   *(leaf_node_num_cells(node)) += 1;
+  /* あいたスペースに新しいセルを入れる */
   *(leaf_node_key(node, cursor->cell_num)) = key;
   serialize_row(value, leaf_node_value(node, cursor->cell_num));
 }
